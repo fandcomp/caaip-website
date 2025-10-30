@@ -1,15 +1,15 @@
 backend:
   name: github
-  repo: YOUR_USERNAME/caaip-website        # TODO: Ganti dengan username/repo production Anda
+  repo: fandcomp/caaip-website
   branch: main
-  base_url: https://caaip-website.vercel.app  # TODO: Ganti dengan domain production Anda
+  base_url: https://caaip-website.vercel.app
   auth_endpoint: /api/auth
 
 media_folder: "public/images"
 public_folder: "/images"
 
-site_url: "https://caaip-website.vercel.app"          # TODO: Ganti dengan domain production Anda
-display_url: "https://caaip-website.vercel.app"       # TODO: Ganti dengan domain production Anda
+site_url: "https://caaip-website.vercel.app"
+display_url: "https://caaip-website.vercel.app"
 logo_url: "/images/logo-itb.png"
 
 publish_mode: editorial_workflow

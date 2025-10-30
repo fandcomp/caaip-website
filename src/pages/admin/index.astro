@@ -1,158 +1,72 @@
 ---
-import Base from '../../layouts/Base.astro';
-
-const title = "Admin Dashboard - CAAIP";
 ---
 
-<Base title={title}>
-  <div class="min-h-screen bg-gray-50 py-12">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <!-- Header -->
-      <div class="text-center mb-12">
-        <h1 class="text-4xl font-bold text-gray-900 mb-4">Admin Dashboard CAAIP</h1>
-        <p class="text-xl text-gray-600">Kelola konten website dengan mudah</p>
-      </div>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - CAAIP</title>
+  <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { margin: 0; }
+    #nc-root { height: 100vh; }
+  </style>
+</head>
+<body>
+  <script>
+    // Check authentication
+    function checkAuth() {
+      const isAuthenticated = localStorage.getItem('admin_authenticated') === 'true';
+      const loginTime = localStorage.getItem('admin_login_time');
 
-      <!-- Quick Actions -->
-      <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
-        <h2 class="text-2xl font-bold text-gray-900 mb-6">Aksi Cepat</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <a href="/admin/" class="bg-blue-600 hover:bg-blue-700 text-white p-6 rounded-lg transition-colors">
-            <div class="text-3xl mb-3">📝</div>
-            <h3 class="text-xl font-semibold mb-2">Buka CMS Admin</h3>
-            <p class="text-sm opacity-90">Kelola semua konten website</p>
-          </a>
+      if (!isAuthenticated || !loginTime) {
+        window.location.href = '/admin/login/';
+        return false;
+      }
 
-          <a href="/id" target="_blank" class="bg-green-600 hover:bg-green-700 text-white p-6 rounded-lg transition-colors">
-            <div class="text-3xl mb-3">👁️</div>
-            <h3 class="text-xl font-semibold mb-2">Lihat Website</h3>
-            <p class="text-sm opacity-90">Preview website hasil edit</p>
-          </a>
+      // Check if login is still valid (24 hours)
+      const now = Date.now();
+      const loginTimestamp = parseInt(loginTime);
+      const hoursDiff = (now - loginTimestamp) / (1000 * 60 * 60);
 
-          <a href="#panduan" class="bg-purple-600 hover:bg-purple-700 text-white p-6 rounded-lg transition-colors">
-            <div class="text-3xl mb-3">📚</div>
-            <h3 class="text-xl font-semibold mb-2">Panduan Penggunaan</h3>
-            <p class="text-sm opacity-90">Pelajari cara menggunakan admin</p>
-          </a>
-        </div>
-      </div>
+      if (hoursDiff > 24) {
+        // Login expired, clear storage and redirect
+        localStorage.removeItem('admin_authenticated');
+        localStorage.removeItem('admin_login_time');
+        window.location.href = '/admin/login/';
+        return false;
+      }
 
-      <!-- Content Management Sections -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        <!-- Berita & Konten -->
-        <div class="bg-white rounded-lg shadow-lg p-6">
-          <h3 class="text-xl font-bold text-gray-900 mb-4">📄 Konten & Berita</h3>
-          <div class="space-y-3">
-            <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
-              <span class="font-medium">Berita Internal</span>
-              <span class="text-sm text-gray-500">Kelola berita institusi</span>
-            </div>
-            <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
-              <span class="font-medium">Berita Eksternal</span>
-              <span class="text-sm text-gray-500">Berita dari luar institusi</span>
-            </div>
-            <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
-              <span class="font-medium">Agenda & Event</span>
-              <span class="text-sm text-gray-500">Jadwal kegiatan</span>
-            </div>
-            <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
-              <span class="font-medium">Kabar Duka</span>
-              <span class="text-sm text-gray-500">Berita duka cita</span>
-            </div>
-          </div>
-        </div>
+      return true;
+    }
 
-        <!-- Pengaturan & Halaman -->
-        <div class="bg-white rounded-lg shadow-lg p-6">
-          <h3 class="text-xl font-bold text-gray-900 mb-4">⚙️ Pengaturan & Halaman</h3>
-          <div class="space-y-3">
-            <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
-              <span class="font-medium">Halaman Statis</span>
-              <span class="text-sm text-gray-500">Tentang CAAIP, Visi Misi, dll</span>
-            </div>
-            <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
-              <span class="font-medium">Profil Institusi</span>
-              <span class="text-sm text-gray-500">Informasi umum CAAIP</span>
-            </div>
-            <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
-              <span class="font-medium">Data Alumni</span>
-              <span class="text-sm text-gray-500">Database alumni</span>
-            </div>
-            <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
-              <span class="font-medium">Pengaturan Website</span>
-              <span class="text-sm text-gray-500">Logo, kontak, media sosial</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Panduan Penggunaan -->
-      <div id="panduan" class="bg-white rounded-lg shadow-lg p-8">
-        <h2 class="text-2xl font-bold text-gray-900 mb-6">📚 Panduan Penggunaan Admin Panel</h2>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div>
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">🚀 Memulai</h3>
-            <ol class="list-decimal list-inside space-y-2 text-gray-700">
-              <li>Klik tombol "Buka CMS Admin" di atas</li>
-              <li>Login dengan akun GitHub Anda</li>
-              <li>Pilih jenis konten yang ingin diubah</li>
-              <li>Klik "New [Jenis Konten]" untuk membuat baru</li>
-              <li>Atau klik item yang sudah ada untuk mengedit</li>
-            </ol>
-          </div>
-
-          <div>
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">✨ Tips untuk Admin</h3>
-            <ul class="list-disc list-inside space-y-2 text-gray-700">
-              <li>Selalu isi "Status" sebagai "draft" saat membuat konten baru</li>
-              <li>Upload gambar dengan resolusi tinggi untuk hasil terbaik</li>
-              <li>Gunakan bahasa yang mudah dipahami pembaca</li>
-              <li>Preview konten sebelum publish dengan klik "Preview"</li>
-              <li>Simpan sebagai draft dulu, lalu publish setelah review</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="mt-8">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">🎯 Workflow Pengelolaan Konten</h3>
-          <div class="bg-blue-50 p-4 rounded-lg">
-            <div class="flex items-center space-x-4">
-              <div class="flex-shrink-0">
-                <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">1</div>
-              </div>
-              <div>
-                <h4 class="font-medium text-gray-900">Buat Draft</h4>
-                <p class="text-sm text-gray-600">Tulis konten dan simpan sebagai draft</p>
+    // Initialize CMS if authenticated
+    if (checkAuth()) {
+      // Load Decap CMS configuration
+      fetch('/admin/config.yml')
+        .then(response => response.text())
+        .then(config => {
+          // Initialize CMS with config
+          window.CMS.init({ config });
+        })
+        .catch(error => {
+          console.error('Failed to load CMS config:', error);
+          document.body.innerHTML = `
+            <div class="min-h-screen flex items-center justify-center bg-gray-50">
+              <div class="text-center">
+                <div class="text-6xl mb-4">⚠️</div>
+                <h1 class="text-2xl font-bold text-gray-900 mb-2">Error Loading Admin Panel</h1>
+                <p class="text-gray-600 mb-4">Failed to load configuration. Please check console for details.</p>
+                <button onclick="window.location.href='/admin/login/'" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg">
+                  Back to Login
+                </button>
               </div>
             </div>
-            <div class="flex items-center space-x-4 mt-4">
-              <div class="flex-shrink-0">
-                <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center text-white font-bold">2</div>
-              </div>
-              <div>
-                <h4 class="font-medium text-gray-900">Review & Edit</h4>
-                <p class="text-sm text-gray-600">Periksa kembali dan lakukan perbaikan</p>
-              </div>
-            </div>
-            <div class="flex items-center space-x-4 mt-4">
-              <div class="flex-shrink-0">
-                <div class="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center text-white font-bold">3</div>
-              </div>
-              <div>
-                <h4 class="font-medium text-gray-900">Publish</h4>
-                <p class="text-sm text-gray-600">Publikasikan konten ke website</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Footer Info -->
-      <div class="text-center mt-12 text-gray-600">
-        <p>&copy; 2025 CAAIP - Pusat Pendidikan dan Pelatihan Transportasi Udara</p>
-        <p class="mt-2">Admin Dashboard v1.0</p>
-      </div>
-    </div>
-  </div>
-</Base>
+          `;
+        });
+    }
+  </script>
+</body>
+</html>
