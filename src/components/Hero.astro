@@ -1,0 +1,82 @@
+---
+// Hero component with slideshow of latest news
+---
+
+<section class="relative h-96 md:h-[500px] overflow-hidden">
+  <div id="slideshow" class="relative w-full h-full">
+    <!-- Slide 1 -->
+    <div class="slide absolute inset-0 bg-cover bg-center" style="background-image: url('/images/logo-itb.png'); background-size: contain; background-repeat: no-repeat; background-position: center; background-color: #f0f0f0;">
+      <div class="absolute inset-0 bg-gradient-to-r from-blue-900 via-blue-800 to-blue-700 bg-opacity-80"></div>
+      <div class="relative z-10 max-w-7xl mx-auto px-4 py-16 flex items-center h-full">
+        <div class="text-white max-w-3xl">
+          <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">Berita Terbaru CAAIP</h1>
+          <p class="text-xl md:text-2xl mb-8 leading-relaxed">Temukan informasi terkini dari CAAIP.</p>
+          <a href="#berita" class="bg-white text-blue-900 px-8 py-4 rounded-lg font-semibold hover:bg-gray-100 transition text-lg">Baca Berita</a>
+        </div>
+      </div>
+    </div>
+    <!-- Slide 2 -->
+    <div class="slide absolute inset-0 bg-cover bg-center opacity-0" style="background-image: url('/images/logo-itb.png'); background-size: contain; background-repeat: no-repeat; background-position: center; background-color: #e0e0e0;">
+      <div class="absolute inset-0 bg-gradient-to-r from-blue-900 via-blue-800 to-blue-700 bg-opacity-80"></div>
+      <div class="relative z-10 max-w-7xl mx-auto px-4 py-16 flex items-center h-full">
+        <div class="text-white max-w-3xl">
+          <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">Inovasi di CAAIP</h1>
+          <p class="text-xl md:text-2xl mb-8 leading-relaxed">Pengembangan teknologi terdepan.</p>
+          <a href="#berita" class="bg-white text-blue-900 px-8 py-4 rounded-lg font-semibold hover:bg-gray-100 transition text-lg">Pelajari Lebih</a>
+        </div>
+      </div>
+    </div>
+    <!-- Slide 3 -->
+    <div class="slide absolute inset-0 bg-cover bg-center opacity-0" style="background-image: url('/images/logo-itb.png'); background-size: contain; background-repeat: no-repeat; background-position: center; background-color: #d0d0d0;">
+      <div class="absolute inset-0 bg-gradient-to-r from-blue-900 via-blue-800 to-blue-700 bg-opacity-80"></div>
+      <div class="relative z-10 max-w-7xl mx-auto px-4 py-16 flex items-center h-full">
+        <div class="text-white max-w-3xl">
+          <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">Kolaborasi dan Pengabdian</h1>
+          <p class="text-xl md:text-2xl mb-8 leading-relaxed">Bersama membangun masa depan.</p>
+          <a href="#berita" class="bg-white text-blue-900 px-8 py-4 rounded-lg font-semibold hover:bg-gray-100 transition text-lg">Bergabung</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Navigation dots -->
+  <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+    <button class="dot w-3 h-3 bg-white bg-opacity-50 rounded-full hover:bg-opacity-100 transition" data-slide="0"></button>
+    <button class="dot w-3 h-3 bg-white bg-opacity-50 rounded-full hover:bg-opacity-100 transition" data-slide="1"></button>
+    <button class="dot w-3 h-3 bg-white bg-opacity-50 rounded-full hover:bg-opacity-100 transition" data-slide="2"></button>
+  </div>
+</section>
+
+<script>
+  let currentSlide = 0;
+  const slides = document.querySelectorAll('.slide');
+  const dots = document.querySelectorAll('.dot');
+
+  function showSlide(index) {
+    slides.forEach((slide, i) => {
+      slide.style.opacity = i === index ? '1' : '0';
+    });
+    dots.forEach((dot, i) => {
+      dot.classList.toggle('bg-opacity-100', i === index);
+      dot.classList.toggle('bg-opacity-50', i !== index);
+    });
+  }
+
+  function nextSlide() {
+    currentSlide = (currentSlide + 1) % slides.length;
+    showSlide(currentSlide);
+  }
+
+  // Auto slide every 5 seconds
+  setInterval(nextSlide, 5000);
+
+  // Dot navigation
+  dots.forEach((dot, index) => {
+    dot.addEventListener('click', () => {
+      currentSlide = index;
+      showSlide(currentSlide);
+    });
+  });
+
+  // Initial show
+  showSlide(currentSlide);
+</script>

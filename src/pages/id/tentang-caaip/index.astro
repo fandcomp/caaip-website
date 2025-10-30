@@ -1,0 +1,60 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const pageData = await getCollection('pages', ({ data, slug }) => {
+  return slug === 'tentang-caaip' && data.locale === 'id' && data.status === 'published';
+});
+
+const page = pageData[0];
+const title = page?.data.title || "Tentang CAAIP";
+---
+
+<Base title={title}>
+  <div class="bg-gray-50 min-h-screen">
+    <!-- Hero Section -->
+    {page?.data.hero_image && (
+      <div class="relative h-96 bg-cover bg-center" style={`background-image: url(${page.data.hero_image})`}>
+        <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+        <div class="relative z-10 flex items-center justify-center h-full">
+          <div class="text-center text-white">
+            <h1 class="text-5xl font-bold mb-4">{page.data.title}</h1>
+            <p class="text-xl max-w-2xl mx-auto">{page.data.summary}</p>
+          </div>
+        </div>
+      </div>
+    )}
+
+    <!-- Content Section -->
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      {!page?.data.hero_image && (
+        <div class="text-center mb-12">
+          <h1 class="text-4xl font-bold text-gray-900 mb-4">{page?.data.title || "Tentang CAAIP"}</h1>
+          <p class="text-xl text-gray-600">{page?.data.summary}</p>
+        </div>
+      )}
+
+      <div class="bg-white rounded-lg shadow-lg p-8">
+        {page ? (
+          <div class="prose prose-lg max-w-none">
+            <slot />
+          </div>
+        ) : (
+          <div class="text-center py-12">
+            <div class="text-6xl mb-4">🏛️</div>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">Halaman dalam pengembangan</h3>
+            <p class="text-gray-600">Konten halaman tentang CAAIP sedang disiapkan.</p>
+            <div class="mt-6">
+              <a
+                href="/admin/"
+                class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium inline-block"
+              >
+                Kelola Konten Admin
+              </a>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+</Base>

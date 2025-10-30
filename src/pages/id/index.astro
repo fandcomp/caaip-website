@@ -1,0 +1,96 @@
+---
+import Base from '../../layouts/Base.astro';
+import Hero from '../../components/Hero.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import { getPublishedNews } from '../../lib/posts.ts';
+
+import matter from 'gray-matter';
+
+const news = Object.values(import.meta.glob('../../../content/berita/*.md', { query: '?raw', import: 'default', eager: true })).map(m => matter(m));
+const publishedNews = (await getPublishedNews(news));
+---
+
+<Base title="Beranda" description="Berita terbaru dari CAAIP">
+  <Hero />
+
+  <!-- Banner Agenda -->
+  <section class="py-8 bg-blue-50">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="bg-white rounded-lg shadow-lg p-6 border-l-4 border-blue-600">
+        <h2 class="text-2xl font-bold mb-4 text-blue-900">Agenda CAAIP</h2>
+        <div class="space-y-4">
+          <div class="flex justify-between items-center border-b pb-2">
+            <div>
+              <h3 class="font-semibold">Workshop AI untuk Industri</h3>
+              <p class="text-sm text-gray-600">Pelatihan implementasi AI di sektor industri</p>
+            </div>
+            <time class="text-sm text-gray-500">5 November 2025</time>
+          </div>
+          <div class="flex justify-between items-center border-b pb-2">
+            <div>
+              <h3 class="font-semibold">Seminar Teknologi Blockchain</h3>
+              <p class="text-sm text-gray-600">Diskusi tentang aplikasi blockchain di berbagai bidang</p>
+            </div>
+            <time class="text-sm text-gray-500">10 November 2025</time>
+          </div>
+        </div>
+        <div class="mt-4 text-right">
+          <a href="#" class="text-blue-600 hover:text-blue-800 font-semibold">Lihat Semua Agenda →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Banner Berita Eksternal -->
+  <section class="py-8 bg-green-50">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="bg-white rounded-lg shadow-lg p-6 border-l-4 border-green-600">
+        <h2 class="text-2xl font-bold mb-4 text-green-900">Berita Eksternal (Google News)</h2>
+        <p class="text-gray-700">Berita terkini dari sumber eksternal akan ditampilkan di sini.</p>
+        <div class="mt-4 text-right">
+          <a href="#" class="text-green-600 hover:text-green-800 font-semibold">Lihat Berita Eksternal →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Banner Berita Internal -->
+  <section class="py-8 bg-yellow-50">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="bg-white rounded-lg shadow-lg p-6 border-l-4 border-yellow-600">
+        <h2 class="text-2xl font-bold mb-4 text-yellow-900">Berita Internal</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {publishedNews.slice(0, 2).map(article => (
+            <div class="border rounded p-4 hover:shadow-md transition">
+              <h3 class="font-semibold text-blue-900 mb-2">{article.data.title}</h3>
+              <p class="text-sm text-gray-600 mb-2">{article.data.summary}</p>
+              <time class="text-xs text-gray-500">{article.data.date}</time>
+            </div>
+          ))}
+        </div>
+        <div class="mt-4 text-right">
+          <a href="/id/berita" class="text-yellow-600 hover:text-yellow-800 font-semibold">Lihat Semua Berita Internal →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Banner Kabar Duka -->
+  <section class="py-8 bg-red-50">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="bg-white rounded-lg shadow-lg p-6 border-l-4 border-red-600">
+        <h2 class="text-2xl font-bold mb-4 text-red-900">Kabar Duka</h2>
+        <div class="space-y-4">
+          <div class="border-l-4 border-red-400 pl-4">
+            <h3 class="font-semibold text-red-800">Berduka Cita</h3>
+            <p class="text-sm text-gray-700">Dengan sedih kami beritahukan bahwa [Nama Almarhum] telah meninggal dunia. Semoga amal ibadahnya diterima di sisi Allah SWT.</p>
+            <time class="text-xs text-gray-500">30 Oktober 2025</time>
+          </div>
+        </div>
+        <div class="mt-4 text-right">
+          <a href="/id/kabar-duka" class="text-red-600 hover:text-red-800 font-semibold">Lihat Semua Kabar Duka →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>

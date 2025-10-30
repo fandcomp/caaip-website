@@ -1,0 +1,84 @@
+---
+import Base from '../../layouts/Base.astro';
+import Hero from '../../components/Hero.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import { getPublishedNews } from '../../lib/posts.ts';
+
+import matter from 'gray-matter';
+
+const news = Object.values(import.meta.glob('../../../content/berita/*.md', { query: '?raw', import: 'default', eager: true })).map(m => matter(m));
+const publishedNews = (await getPublishedNews(news));
+const featured = publishedNews.slice(0, 1); // Featured
+const mainNews = publishedNews.slice(1, 4); // Main News
+const latestNews = publishedNews.slice(4, 8); // Latest
+---
+
+<Base title="Home" description="Latest news from our institution">
+  <Hero />
+
+  <!-- Featured -->
+  {featured.length > 0 && (
+    <section class="bg-gray-100 py-12">
+      <div class="max-w-7xl mx-auto px-4">
+        <h2 class="text-3xl font-bold mb-6 text-blue-900">Featured</h2>
+        <div class="grid grid-cols-1 md:grid-cols-1 gap-6">
+          {featured.map(article => (
+            <ArticleCard
+              title={article.data.title}
+              summary={article.data.summary}
+              cover={article.data.cover}
+              slug={article.data.slug}
+              date={article.data.date}
+              locale="en"
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Main News -->
+  {mainNews.length > 0 && (
+    <section class="py-12">
+      <div class="max-w-7xl mx-auto px-4">
+        <h2 class="text-3xl font-bold mb-6 text-blue-900">Main News</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {mainNews.map(article => (
+            <ArticleCard
+              title={article.data.title}
+              summary={article.data.summary}
+              cover={article.data.cover}
+              slug={article.data.slug}
+              date={article.data.date}
+              locale="en"
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Latest News -->
+  {latestNews.length > 0 && (
+    <section class="bg-gray-50 py-12">
+      <div class="max-w-7xl mx-auto px-4">
+        <h2 class="text-3xl font-bold mb-6 text-blue-900">Latest News</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {latestNews.map(article => (
+            <ArticleCard
+              title={article.data.title}
+              summary={article.data.summary}
+              cover={article.data.cover}
+              slug={article.data.slug}
+              date={article.data.date}
+              locale="en"
+            />
+          ))}
+        </div>
+        <div class="text-center mt-8">
+          <a href="/en/berita" class="bg-blue-900 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-800 transition">View All News</a>
+        </div>
+      </div>
+    </section>
+  )}
+</Base>

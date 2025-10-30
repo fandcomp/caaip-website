@@ -1,0 +1,168 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const alumniItems = await getCollection('alumni_orang', ({ data }) => {
+  return data.status === 'published' && data.locale === 'id';
+});
+
+// Sort by cohort (newest first)
+alumniItems.sort((a, b) => b.data.cohort - a.data.cohort);
+
+// Group by cohort
+const alumniByCohort = alumniItems.reduce((acc, item) => {
+  const cohort = item.data.cohort;
+  if (!acc[cohort]) {
+    acc[cohort] = [];
+  }
+  acc[cohort].push(item);
+  return acc;
+}, {});
+
+const title = "Alumni CAAIP";
+---
+
+<Base title={title}>
+  <div class="bg-gray-50 min-h-screen py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Header -->
+      <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Alumni CAAIP</h1>
+        <p class="text-xl text-gray-600">Jaringan profesional transportasi udara Indonesia</p>
+      </div>
+
+      <!-- Alumni Stats -->
+      <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+          <div>
+            <div class="text-3xl font-bold text-blue-600">{alumniItems.length}+</div>
+            <div class="text-gray-600">Total Alumni</div>
+          </div>
+          <div>
+            <div class="text-3xl font-bold text-green-600">{Object.keys(alumniByCohort).length}</div>
+            <div class="text-gray-600">Angkatan</div>
+          </div>
+          <div>
+            <div class="text-3xl font-bold text-purple-600">95%</div>
+            <div class="text-gray-600">Bekerja</div>
+          </div>
+          <div>
+            <div class="text-3xl font-bold text-orange-600">15jt</div>
+            <div class="text-gray-600">Rata-rata Gaji</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alumni by Cohort -->
+      {Object.keys(alumniByCohort).sort((a, b) => b - a).map((cohort) => (
+        <div class="mb-12">
+          <h2 class="text-2xl font-bold text-gray-900 mb-6">Angkatan {cohort}</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {alumniByCohort[cohort].map((alumni) => (
+              <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+                {alumni.data.avatar ? (
+                  <img
+                    src={alumni.data.avatar}
+                    alt={`Foto ${alumni.data.name}`}
+                    class="w-full h-48 object-cover"
+                  />
+                ) : (
+                  <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
+                    <span class="text-4xl text-gray-400">👤</span>
+                  </div>
+                )}
+                <div class="p-6">
+                  <h3 class="text-xl font-bold text-gray-900 mb-2">
+                    {alumni.data.name}
+                  </h3>
+
+                  <div class="text-sm text-gray-600 mb-3">
+                    {alumni.data.program && (
+                      <div class="mb-1">
+                        <span class="font-medium">🎓 Program:</span> {alumni.data.program}
+                      </div>
+                    )}
+                    {alumni.data.jobTitle && alumni.data.organization && (
+                      <div class="mb-1">
+                        <span class="font-medium">💼 Pekerjaan:</span> {alumni.data.jobTitle} di {alumni.data.organization}
+                      </div>
+                    )}
+                    {alumni.data.unit && (
+                      <div>
+                        <span class="font-medium">🏢 Unit:</span> {alumni.data.unit}
+                      </div>
+                    )}
+                  </div>
+
+                  <div class="flex space-x-3 text-sm">
+                    {alumni.data.email && (
+                      <a
+                        href={`mailto:${alumni.data.email}`}
+                        class="text-blue-600 hover:text-blue-800"
+                        title="Email"
+                      >
+                        📧
+                      </a>
+                    )}
+                    {alumni.data.phone && (
+                      <a
+                        href={`tel:${alumni.data.phone}`}
+                        class="text-green-600 hover:text-green-800"
+                        title="Telepon"
+                      >
+                        📞
+                      </a>
+                    )}
+                  </div>
+
+                  {alumni.data.body && (
+                    <div class="mt-4">
+                      <a
+                        href={`/id/alumni/${alumni.slug}`}
+                        class="text-blue-600 hover:text-blue-800 font-medium text-sm"
+                      >
+                        Lihat Profil Lengkap →
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+
+      {alumniItems.length === 0 && (
+        <div class="text-center py-12">
+          <div class="text-6xl mb-4">👥</div>
+          <h3 class="text-xl font-semibold text-gray-900 mb-2">Belum ada data alumni</h3>
+          <p class="text-gray-600">Data alumni akan segera ditambahkan.</p>
+        </div>
+      )}
+
+      <!-- Join Alumni Section -->
+      <div class="bg-white rounded-lg shadow-lg p-8 mt-12">
+        <div class="text-center">
+          <h3 class="text-2xl font-bold text-gray-900 mb-4">Bergabung dengan Komunitas Alumni</h3>
+          <p class="text-gray-700 mb-6">
+            Jadilah bagian dari jaringan profesional CAAIP dan dapatkan berbagai manfaat eksklusif.
+          </p>
+          <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a
+              href="mailto:alumni@caaip.ac.id"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium"
+            >
+              Hubungi Alumni Center
+            </a>
+            <a
+              href="/admin/"
+              class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium"
+            >
+              Daftar sebagai Alumni
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Base>

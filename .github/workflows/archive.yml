@@ -1,0 +1,15 @@
+name: Archive Content
+on:
+  schedule:
+    - cron: "0 0 * * 0"
+jobs:
+  zip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y zip
+      - run: zip -r content-archive.zip content public/images
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: content-archive-${{ github.run_number }}
+          files: content-archive.zip

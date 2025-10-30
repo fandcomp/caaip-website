@@ -1,0 +1,100 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const agendaItems = await getCollection('agenda', ({ data }) => {
+  return data.status === 'published' && data.locale === 'id';
+});
+
+// Sort by start date (newest first)
+agendaItems.sort((a, b) => new Date(b.data.start_date) - new Date(a.data.start_date));
+
+const title = "Agenda & Event - CAAIP";
+---
+
+<Base title={title}>
+  <div class="bg-gray-50 min-h-screen py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Header -->
+      <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Agenda & Event</h1>
+        <p class="text-xl text-gray-600">Jadwal kegiatan dan event CAAIP</p>
+      </div>
+
+      <!-- Agenda List -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {agendaItems.map((item) => (
+          <article class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+            {item.data.poster && (
+              <img
+                src={item.data.poster}
+                alt={item.data.title}
+                class="w-full h-48 object-cover"
+              />
+            )}
+            <div class="p-6">
+              <div class="flex items-center mb-2">
+                <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full font-medium">
+                  {item.data.event_type}
+                </span>
+              </div>
+
+              <h2 class="text-xl font-bold text-gray-900 mb-2">
+                <a href={`/id/agenda/${item.slug}`} class="hover:text-blue-600">
+                  {item.data.title}
+                </a>
+              </h2>
+
+              <div class="text-sm text-gray-600 mb-3">
+                <div class="flex items-center mb-1">
+                  <span class="font-medium">📅 Tanggal:</span>
+                  <span class="ml-2">{new Date(item.data.start_date).toLocaleDateString('id-ID')}</span>
+                </div>
+                <div class="flex items-center mb-1">
+                  <span class="font-medium">📍 Lokasi:</span>
+                  <span class="ml-2">{item.data.location}</span>
+                </div>
+                {item.data.registration_open && (
+                  <div class="flex items-center">
+                    <span class="font-medium">📝 Pendaftaran:</span>
+                    <span class="ml-2 text-green-600">Dibuka</span>
+                  </div>
+                )}
+              </div>
+
+              <p class="text-gray-700 text-sm mb-4 line-clamp-3">
+                {item.data.summary}
+              </p>
+
+              <div class="flex justify-between items-center">
+                <a
+                  href={`/id/agenda/${item.slug}`}
+                  class="text-blue-600 hover:text-blue-800 font-medium"
+                >
+                  Baca Selengkapnya →
+                </a>
+                {item.data.registration_open && item.data.registration_link && (
+                  <a
+                    href={item.data.registration_link}
+                    target="_blank"
+                    class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-medium"
+                  >
+                    Daftar
+                  </a>
+                )}
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      {agendaItems.length === 0 && (
+        <div class="text-center py-12">
+          <div class="text-6xl mb-4">📅</div>
+          <h3 class="text-xl font-semibold text-gray-900 mb-2">Belum ada agenda</h3>
+          <p class="text-gray-600">Agenda dan event akan segera diumumkan.</p>
+        </div>
+      )}
+    </div>
+  </div>
+</Base>

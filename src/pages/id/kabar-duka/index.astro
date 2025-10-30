@@ -1,0 +1,120 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const obituaryItems = await getCollection('kabar_duka', ({ data }) => {
+  return data.status === 'published' && data.locale === 'id';
+});
+
+// Sort by date of death (newest first)
+obituaryItems.sort((a, b) => new Date(b.data.dateOfDeath) - new Date(a.data.dateOfDeath));
+
+const title = "Kabar Duka - CAAIP";
+---
+
+<Base title={title}>
+  <div class="bg-gray-50 min-h-screen py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Header -->
+      <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Kabar Duka</h1>
+        <p class="text-xl text-gray-600">Berita duka cita keluarga besar CAAIP</p>
+      </div>
+
+      <!-- Obituary List -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {obituaryItems.map((item) => (
+          <article class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+            {item.data.photo && (
+              <img
+                src={item.data.photo}
+                alt={`Foto ${item.data.name}`}
+                class="w-full h-64 object-cover"
+              />
+            )}
+            <div class="p-6">
+              <div class="flex items-center mb-3">
+                <span class="inline-block bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full font-medium">
+                  {item.data.role}
+                </span>
+                {item.data.affiliation && (
+                  <span class="ml-2 text-sm text-gray-600">
+                    - {item.data.affiliation}
+                  </span>
+                )}
+              </div>
+
+              <h2 class="text-2xl font-bold text-gray-900 mb-2">
+                {item.data.name}
+              </h2>
+
+              <div class="text-sm text-gray-600 mb-4">
+                <div class="flex items-center mb-1">
+                  <span class="font-medium">🕊️ Wafat:</span>
+                  <span class="ml-2">{new Date(item.data.dateOfDeath).toLocaleDateString('id-ID')}</span>
+                </div>
+                {item.data.funeralInfo && (
+                  <div class="flex items-center mb-1">
+                    <span class="font-medium">📍 Prosesi:</span>
+                    <span class="ml-2">{item.data.funeralInfo}</span>
+                  </div>
+                )}
+                {item.data.location && (
+                  <div class="flex items-center">
+                    <span class="font-medium">📍 Lokasi:</span>
+                    <span class="ml-2">{item.data.location}</span>
+                  </div>
+                )}
+              </div>
+
+              <p class="text-gray-700 text-sm mb-4">
+                {item.data.summary}
+              </p>
+
+              {item.data.contactFamily && (
+                <div class="bg-blue-50 p-3 rounded mb-4">
+                  <p class="text-sm text-blue-800">
+                    <strong>Kontak Keluarga:</strong> {item.data.contactFamily}
+                  </p>
+                </div>
+              )}
+
+              <div class="flex justify-between items-center">
+                <a
+                  href={`/id/kabar-duka/${item.slug}`}
+                  class="text-blue-600 hover:text-blue-800 font-medium"
+                >
+                  Baca Selengkapnya →
+                </a>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      {obituaryItems.length === 0 && (
+        <div class="text-center py-12">
+          <div class="text-6xl mb-4">🕊️</div>
+          <h3 class="text-xl font-semibold text-gray-900 mb-2">Belum ada kabar duka</h3>
+          <p class="text-gray-600">Semoga keluarga besar CAAIP selalu dalam keadaan sehat.</p>
+        </div>
+      )}
+
+      <!-- Support Section -->
+      <div class="mt-12 bg-white rounded-lg shadow-lg p-8">
+        <h3 class="text-xl font-bold text-gray-900 mb-4 text-center">Dukungan CAAIP</h3>
+        <p class="text-gray-700 text-center mb-6">
+          CAAIP berkomitmen memberikan dukungan moril dan materiil untuk keluarga besar yang sedang berduka.
+        </p>
+        <div class="text-center">
+          <a
+            href="mailto:dukacita@caaip.ac.id"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium inline-block"
+          >
+            Hubungi Dukungan CAAIP
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</Base>

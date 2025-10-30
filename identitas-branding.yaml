@@ -1,0 +1,29 @@
+# Template Identitas & Branding
+nama_instansi: "&lt;nama resmi&gt;"
+singkatan: "&lt;opsional&gt;"
+tagline: "&lt;opsional, 5–7 kata&gt;"
+
+logo: "/public/images/logo.png"          # SVG/PNG
+favicon: "/public/images/favicon.svg"     # SVG/PNG
+
+palet_warna:
+  primary: "#003366"     # biru institusi mirip ITB
+  secondary: "#F5B400"   # aksen
+  neutral_900: "#111827"
+  neutral_700: "#374151"
+  neutral_500: "#6B7280"
+  neutral_100: "#F3F4F6"
+
+tipografi:
+  heading_serif:
+    font_family: "\"Source Serif 4\", Georgia, serif"
+  body_sans:
+    font_family: "\"Inter\", system-ui, sans-serif"
+
+nada_visual:
+  - "Akademik, kredibel, bersih, animasi halus (opacity/transform)"
+  - "White space lapang, grid editorial, fokus keterbacaan"
+
+aset_foto:
+  hero_beranda: "/public/images/hero.jpg"
+  default_cover: "/public/images/cover-default.jpg"

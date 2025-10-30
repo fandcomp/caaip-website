@@ -1,0 +1,12 @@
+---
+import { switchLocale } from '../lib/i18n.ts';
+
+const currentPath = Astro.url.pathname;
+const currentLocale = currentPath.startsWith('/en') ? 'en' : 'id';
+const otherLocale = currentLocale === 'id' ? 'en' : 'id';
+const switchedPath = switchLocale(currentPath, otherLocale);
+---
+
+<a href={switchedPath} class="text-primary hover:underline">
+  {otherLocale === 'en' ? 'EN' : 'ID'}
+</a>

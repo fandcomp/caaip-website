@@ -1,0 +1,92 @@
+---
+import '../styles/global.css';
+const { title, description } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="description" content={description || "Web Berita Instansi"}>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <title>{title || "Berita Instansi"}</title>
+  <style>
+    .primary { background-color: #003366; color: white; }
+    .primary-text { color: #003366; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans">
+  <!-- Header -->
+  <header class="bg-white shadow-md border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 py-4">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center space-x-4">
+          <img src="/images/logo-itb.png" alt="Logo CAAIP" class="h-12 w-auto">
+          <img src="/images/kemenhub.png" alt="Logo Kemenhub" class="h-12 w-auto ml-4">
+        </div>
+        <nav class="hidden lg:flex space-x-8">
+          <a href="/id/tentang-caaip" class="hover:text-blue-600 font-medium">Tentang CAAIP</a>
+          <a href="/id/berita" class="hover:text-blue-600 font-medium">Berita</a>
+          <a href="/id/kabar-duka" class="hover:text-blue-600 font-medium">Kabar Duka</a>
+          <a href="/id/alumni" class="hover:text-blue-600 font-medium">Alumni</a>
+        </nav>
+        <div class="flex items-center space-x-4">
+          <button class="hover:text-blue-600">🔍</button>
+          <a href="/en/" class="hover:text-blue-600">EN</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <slot />
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 text-white py-8">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        <div>
+          <h3 class="text-lg font-bold mb-4">CAAIP</h3>
+          <p class="text-sm mb-4">Jl. Contoh No. 1, Kota Bandung, Jawa Barat, Indonesia 40132</p>
+          <p class="text-sm">info@caaip.ac.id</p>
+        </div>
+        <div>
+          <h4 class="font-semibold mb-4">Profil CAAIP</h4>
+          <nav class="flex flex-col space-y-2 text-sm">
+            <a href="/id/tentang-caaip" class="hover:text-gray-300">Tentang CAAIP</a>
+            <a href="/id/visi-misi" class="hover:text-gray-300">Visi & Misi</a>
+            <a href="/id/struktur-organisasi" class="hover:text-gray-300">Struktur Organisasi</a>
+            <a href="/id/fasilitas" class="hover:text-gray-300">Fasilitas</a>
+          </nav>
+        </div>
+        <div>
+          <h4 class="font-semibold mb-4">Informasi</h4>
+          <nav class="flex flex-col space-y-2 text-sm">
+            <a href="/id/berita" class="hover:text-gray-300">Berita</a>
+            <a href="/id/agenda" class="hover:text-gray-300">Agenda</a>
+            <a href="/id/kabar-duka" class="hover:text-gray-300">Kabar Duka</a>
+            <a href="/id/alumni" class="hover:text-gray-300">Alumni</a>
+            <a href="/admin/" class="hover:text-gray-300 text-blue-300" target="_blank">⚙️ Admin Panel</a>
+          </nav>
+        </div>
+        <div>
+          <h4 class="font-semibold mb-4">Kontak & Media Sosial</h4>
+          <p class="text-sm mb-4">Hubungi kami untuk informasi lebih lanjut</p>
+          <div class="flex space-x-4">
+            <a href="#" class="hover:text-blue-400 text-xl" title="Facebook">📘</a>
+            <a href="#" class="hover:text-pink-400 text-xl" title="Instagram">📷</a>
+            <a href="#" class="hover:text-green-400 text-xl" title="WhatsApp">💬</a>
+            <a href="#" class="hover:text-gray-400 text-xl" title="X (Twitter)">🐦</a>
+            <a href="#" class="hover:text-black text-xl" title="TikTok">🎵</a>
+          </div>
+        </div>
+      </div>
+      <div class="text-center border-t border-gray-700 pt-4">
+        <p class="text-sm">&copy; 2025 CAAIP. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
