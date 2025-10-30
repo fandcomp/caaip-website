@@ -8,6 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard - CAAIP</title>
   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+  <script src="https://unpkg.com/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { margin: 0; }
@@ -42,117 +43,35 @@
       return true;
     }
 
-    // CMS Configuration
-    const cmsConfig = {
-      backend: {
-        name: 'github',
-        repo: 'fandcomp/caaip-website',
-        branch: 'main',
-        base_url: 'https://caaip-website.vercel.app',
-        auth_endpoint: '/api/auth'
-      },
-      media_folder: 'public/images',
-      public_folder: '/images',
-      site_url: 'https://caaip-website.vercel.app',
-      display_url: 'https://caaip-website.vercel.app',
-      logo_url: '/images/logo-itb.png',
-      publish_mode: 'editorial_workflow',
-      collections: [
-        {
-          name: 'berita',
-          label: 'Berita',
-          folder: 'content/berita',
-          create: true,
-          slug: '{{year}}-{{month}}-{{day}}-{{slug}}',
-          preview_path: '{{locale}}/berita/{{slug}}',
-          fields: [
-            { label: 'Status', name: 'status', widget: 'select', options: ['draft', 'published'], default: 'draft' },
-            { label: 'Judul', name: 'title', widget: 'string' },
-            { label: 'Slug', name: 'slug', widget: 'string' },
-            { label: 'Tanggal', name: 'date', widget: 'datetime', format: 'YYYY-MM-DD', time_format: false },
-            { label: 'Penulis', name: 'author', widget: 'string', default: 'Redaksi' },
-            { label: 'Kategori', name: 'category', widget: 'select', options: ['Berita Internal', 'Berita Eksternal', 'Pengumuman', 'Lainnya'], default: 'Berita Internal' },
-            { label: 'Tag', name: 'tags', widget: 'list', default: [] },
-            { label: 'Cover', name: 'cover', widget: 'image', choose_url: false },
-            { label: 'Ringkasan', name: 'summary', widget: 'text' },
-            { label: 'Bahasa', name: 'locale', widget: 'select', options: ['id', 'en'], default: 'id' },
-            { label: 'Isi', name: 'body', widget: 'markdown' }
-          ]
-        },
-        {
-          name: 'agenda',
-          label: 'Agenda & Event',
-          folder: 'content/agenda',
-          create: true,
-          slug: '{{year}}-{{month}}-{{day}}-{{slug}}',
-          preview_path: '{{locale}}/agenda/{{slug}}',
-          fields: [
-            { label: 'Status', name: 'status', widget: 'select', options: ['draft', 'published'], default: 'draft' },
-            { label: 'Judul Event', name: 'title', widget: 'string' },
-            { label: 'Slug', name: 'slug', widget: 'string' },
-            { label: 'Tanggal Mulai', name: 'start_date', widget: 'datetime', format: 'YYYY-MM-DD', time_format: 'HH:mm' },
-            { label: 'Tanggal Selesai', name: 'end_date', widget: 'datetime', format: 'YYYY-MM-DD', time_format: 'HH:mm', required: false },
-            { label: 'Lokasi', name: 'location', widget: 'string' },
-            { label: 'Jenis Event', name: 'event_type', widget: 'select', options: ['Seminar', 'Workshop', 'Pelatihan', 'Konferensi', 'Lainnya'], default: 'Lainnya' },
-            { label: 'Poster/Gambar', name: 'poster', widget: 'image', required: false, choose_url: false },
-            { label: 'Ringkasan', name: 'summary', widget: 'text' },
-            { label: 'Bahasa', name: 'locale', widget: 'select', options: ['id', 'en'], default: 'id' },
-            { label: 'Detail Lengkap', name: 'body', widget: 'markdown' }
-          ]
-        },
-        {
-          name: 'kabar_duka',
-          label: 'Kabar Duka',
-          folder: 'content/kabar-duka',
-          create: true,
-          slug: '{{year}}-{{month}}-{{day}}-{{slug}}',
-          preview_path: '{{locale}}/kabar-duka/{{slug}}',
-          fields: [
-            { label: 'Status', name: 'status', widget: 'select', options: ['draft', 'published'], default: 'draft' },
-            { label: 'Judul Obituari', name: 'obituaryTitle', widget: 'string' },
-            { label: 'Slug', name: 'slug', widget: 'string' },
-            { label: 'Nama', name: 'name', widget: 'string' },
-            { label: 'Tanggal Wafat', name: 'dateOfDeath', widget: 'datetime', format: 'YYYY-MM-DD', time_format: false },
-            { label: 'Ringkasan', name: 'summary', widget: 'text' },
-            { label: 'Bahasa', name: 'locale', widget: 'select', options: ['id', 'en'], default: 'id' },
-            { label: 'Isi', name: 'body', widget: 'markdown' }
-          ]
-        },
-        {
-          name: 'alumni_orang',
-          label: 'Alumni - Orang',
-          folder: 'content/alumni/orang',
-          create: true,
-          slug: '{{cohort}}-{{slug}}',
-          preview_path: '{{locale}}/alumni/{{cohort}}',
-          fields: [
-            { label: 'Status', name: 'status', widget: 'select', options: ['draft', 'published'], default: 'published' },
-            { label: 'Nama', name: 'name', widget: 'string' },
-            { label: 'Slug', name: 'slug', widget: 'string' },
-            { label: 'Angkatan', name: 'cohort', widget: 'number', value_type: 'int', min: 1900, max: 2100 },
-            { label: 'Program', name: 'program', widget: 'string', required: false },
-            { label: 'Jabatan', name: 'jobTitle', widget: 'string', required: false },
-            { label: 'Organisasi', name: 'organization', widget: 'string', required: false },
-            { label: 'Email (opsional)', name: 'email', widget: 'string', required: false },
-            { label: 'Foto', name: 'avatar', widget: 'image', required: false, choose_url: false },
-            { label: 'Bahasa', name: 'locale', widget: 'select', options: ['id', 'en'], default: 'id' },
-            { label: 'Bio Singkat', name: 'body', widget: 'markdown', required: false }
-          ]
-        }
-      ]
-    };
-
     // Initialize CMS if authenticated
     if (checkAuth()) {
-      // Wait for CMS to be ready
+      // Wait for CMS to be ready and load config
       function initializeCMS() {
         if (typeof window.CMS !== 'undefined' && window.CMS.init) {
-          try {
-            window.CMS.init(cmsConfig);
-          } catch (error) {
-            console.error('Failed to initialize CMS:', error);
-            showError('Failed to initialize CMS: ' + error.message);
-          }
+          // CMS is ready, manually load simple config
+          fetch('/admin/config-simple.yml')
+            .then(response => {
+              if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+              }
+              return response.text();
+            })
+            .then(configText => {
+              try {
+                // Parse YAML to JavaScript object
+                const config = jsyaml.load(configText);
+
+                // Initialize CMS with parsed config
+                window.CMS.init(config);
+              } catch (parseError) {
+                console.error('Failed to parse CMS config:', parseError);
+                showError('Failed to parse CMS config: ' + parseError.message);
+              }
+            })
+            .catch(error => {
+              console.error('Failed to load CMS config:', error);
+              showError('Failed to load CMS config: ' + error.message);
+            });
         } else {
           // Retry after a short delay
           setTimeout(initializeCMS, 100);

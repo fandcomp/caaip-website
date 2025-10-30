@@ -1,0 +1,35 @@
+backend:
+  name: github
+  repo: fandcomp/caaip-website
+  branch: main
+  base_url: https://caaip-website.vercel.app
+  auth_endpoint: /api/auth
+
+media_folder: "public/images"
+public_folder: "/images"
+
+site_url: "https://caaip-website.vercel.app"
+display_url: "https://caaip-website.vercel.app"
+logo_url: "/images/logo-itb.png"
+
+publish_mode: editorial_workflow
+
+collections:
+  - name: berita
+    label: 'Berita'
+    folder: 'content/berita'
+    create: true
+    slug: '{{year}}-{{month}}-{{day}}-{{slug}}'
+    preview_path: '{{locale}}/berita/{{slug}}'
+    fields:
+      - {label: 'Status', name: 'status', widget: 'select', options: ['draft','published'], default: 'draft'}
+      - {label: 'Judul', name: 'title', widget: 'string'}
+      - {label: 'Slug', name: 'slug', widget: 'string'}
+      - {label: 'Tanggal', name: 'date', widget: 'datetime', format: 'YYYY-MM-DD', time_format: false}
+      - {label: 'Penulis', name: 'author', widget: 'string', default: 'Redaksi'}
+      - {label: 'Kategori', name: 'category', widget: 'select', options: ['Berita Internal','Berita Eksternal','Pengumuman','Lainnya'], default: 'Berita Internal'}
+      - {label: 'Tag', name: 'tags', widget: 'list', default: []}
+      - {label: 'Cover', name: 'cover', widget: 'image', choose_url: false}
+      - {label: 'Ringkasan', name: 'summary', widget: 'text'}
+      - {label: 'Bahasa', name: 'locale', widget: 'select', options: ['id','en'], default: 'id'}
+      - {label: 'Isi', name: 'body', widget: 'markdown'}
