@@ -12,10 +12,12 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { margin: 0; }
-    #nc-root { height: 100vh; }
+    #nc-root { height: 100vh; width: 100vw; }
   </style>
 </head>
 <body>
+  <div id="nc-root"></div>
+
   <script>
     // Check authentication
     function checkAuth() {
@@ -43,35 +45,152 @@
       return true;
     }
 
+    // CMS Configuration - inline config to avoid file loading issues
+    const cmsConfig = {
+      backend: {
+        name: 'github',
+        repo: 'fandcomp/caaip-website',
+        branch: 'main',
+        base_url: 'https://caaip-website.vercel.app',
+        auth_endpoint: '/api/auth'
+      },
+      media_folder: 'public/images',
+      public_folder: '/images',
+      site_url: 'https://caaip-website.vercel.app',
+      display_url: 'https://caaip-website.vercel.app',
+      logo_url: '/images/logo-itb.png',
+      publish_mode: 'editorial_workflow',
+      collections: [
+        {
+          name: 'berita',
+          label: 'Berita',
+          folder: 'content/berita',
+          create: true,
+          slug: '{{year}}-{{month}}-{{day}}-{{slug}}',
+          preview_path: '{{locale}}/berita/{{slug}}',
+          fields: [
+            { label: 'Status', name: 'status', widget: 'select', options: ['draft', 'published'], default: 'draft' },
+            { label: 'Judul', name: 'title', widget: 'string' },
+            { label: 'Slug', name: 'slug', widget: 'string' },
+            { label: 'Tanggal', name: 'date', widget: 'datetime', format: 'YYYY-MM-DD', time_format: false },
+            { label: 'Penulis', name: 'author', widget: 'string', default: 'Redaksi' },
+            { label: 'Kategori', name: 'category', widget: 'select', options: ['Berita Internal', 'Berita Eksternal', 'Pengumuman', 'Lainnya'], default: 'Berita Internal' },
+            { label: 'Tag', name: 'tags', widget: 'list', default: [] },
+            { label: 'Cover', name: 'cover', widget: 'image', choose_url: false },
+            { label: 'Ringkasan', name: 'summary', widget: 'text' },
+            { label: 'Bahasa', name: 'locale', widget: 'select', options: ['id', 'en'], default: 'id' },
+            { label: 'Isi', name: 'body', widget: 'markdown' }
+          ]
+        },
+        {
+          name: 'agenda',
+          label: 'Agenda',
+          folder: 'content/agenda',
+          create: true,
+          slug: '{{year}}-{{month}}-{{day}}-{{slug}}',
+          preview_path: '{{locale}}/agenda/{{slug}}',
+          fields: [
+            { label: 'Status', name: 'status', widget: 'select', options: ['draft', 'published'], default: 'draft' },
+            { label: 'Judul', name: 'title', widget: 'string' },
+            { label: 'Slug', name: 'slug', widget: 'string' },
+            { label: 'Tanggal Mulai', name: 'start_date', widget: 'datetime', format: 'YYYY-MM-DD', time_format: 'HH:mm' },
+            { label: 'Tanggal Selesai', name: 'end_date', widget: 'datetime', format: 'YYYY-MM-DD', time_format: 'HH:mm' },
+            { label: 'Lokasi', name: 'location', widget: 'string' },
+            { label: 'Penulis', name: 'author', widget: 'string', default: 'Redaksi' },
+            { label: 'Kategori', name: 'category', widget: 'select', options: ['Seminar', 'Workshop', 'Konferensi', 'Lainnya'], default: 'Seminar' },
+            { label: 'Tag', name: 'tags', widget: 'list', default: [] },
+            { label: 'Cover', name: 'cover', widget: 'image', choose_url: false },
+            { label: 'Ringkasan', name: 'summary', widget: 'text' },
+            { label: 'Bahasa', name: 'locale', widget: 'select', options: ['id', 'en'], default: 'id' },
+            { label: 'Deskripsi', name: 'body', widget: 'markdown' }
+          ]
+        },
+        {
+          name: 'kabar_duka',
+          label: 'Kabar Duka',
+          folder: 'content/kabar-duka',
+          create: true,
+          slug: '{{year}}-{{month}}-{{day}}-{{slug}}',
+          preview_path: '{{locale}}/kabar-duka/{{slug}}',
+          fields: [
+            { label: 'Status', name: 'status', widget: 'select', options: ['draft', 'published'], default: 'draft' },
+            { label: 'Nama', name: 'title', widget: 'string' },
+            { label: 'Slug', name: 'slug', widget: 'string' },
+            { label: 'Tanggal Wafat', name: 'date', widget: 'datetime', format: 'YYYY-MM-DD', time_format: false },
+            { label: 'Penulis', name: 'author', widget: 'string', default: 'Redaksi' },
+            { label: 'Tag', name: 'tags', widget: 'list', default: [] },
+            { label: 'Foto', name: 'cover', widget: 'image', choose_url: false },
+            { label: 'Ringkasan', name: 'summary', widget: 'text' },
+            { label: 'Bahasa', name: 'locale', widget: 'select', options: ['id', 'en'], default: 'id' },
+            { label: 'Biografi', name: 'body', widget: 'markdown' }
+          ]
+        },
+        {
+          name: 'alumni_orang',
+          label: 'Alumni',
+          folder: 'content/alumni',
+          create: true,
+          slug: '{{slug}}',
+          preview_path: '{{locale}}/alumni/{{slug}}',
+          fields: [
+            { label: 'Status', name: 'status', widget: 'select', options: ['draft', 'published'], default: 'draft' },
+            { label: 'Nama', name: 'title', widget: 'string' },
+            { label: 'Slug', name: 'slug', widget: 'string' },
+            { label: 'Angkatan', name: 'angkatan', widget: 'number' },
+            { label: 'Program Studi', name: 'program_studi', widget: 'string' },
+            { label: 'Email', name: 'email', widget: 'string' },
+            { label: 'LinkedIn', name: 'linkedin', widget: 'string' },
+            { label: 'Penulis', name: 'author', widget: 'string', default: 'Redaksi' },
+            { label: 'Tag', name: 'tags', widget: 'list', default: [] },
+            { label: 'Foto', name: 'cover', widget: 'image', choose_url: false },
+            { label: 'Ringkasan', name: 'summary', widget: 'text' },
+            { label: 'Bahasa', name: 'locale', widget: 'select', options: ['id', 'en'], default: 'id' },
+            { label: 'Biografi', name: 'body', widget: 'markdown' }
+          ]
+        },
+        {
+          name: 'pages',
+          label: 'Halaman',
+          folder: 'content/pages',
+          create: true,
+          slug: '{{slug}}',
+          preview_path: '{{locale}}/{{slug}}',
+          fields: [
+            { label: 'Status', name: 'status', widget: 'select', options: ['draft', 'published'], default: 'draft' },
+            { label: 'Judul', name: 'title', widget: 'string' },
+            { label: 'Slug', name: 'slug', widget: 'string' },
+            { label: 'Penulis', name: 'author', widget: 'string', default: 'Redaksi' },
+            { label: 'Tag', name: 'tags', widget: 'list', default: [] },
+            { label: 'Cover', name: 'cover', widget: 'image', choose_url: false },
+            { label: 'Ringkasan', name: 'summary', widget: 'text' },
+            { label: 'Bahasa', name: 'locale', widget: 'select', options: ['id', 'en'], default: 'id' },
+            { label: 'Isi', name: 'body', widget: 'markdown' }
+          ]
+        }
+      ]
+    };
+
     // Initialize CMS if authenticated
     if (checkAuth()) {
-      // Wait for CMS to be ready and load config
+      // Wait for DOM to be ready and CMS to be loaded
       function initializeCMS() {
-        if (typeof window.CMS !== 'undefined' && window.CMS.init) {
-          // CMS is ready, manually load simple config
-          fetch('/admin/config-simple.yml')
-            .then(response => {
-              if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-              }
-              return response.text();
-            })
-            .then(configText => {
-              try {
-                // Parse YAML to JavaScript object
-                const config = jsyaml.load(configText);
+        // Check if DOM is ready and CMS container exists
+        if (document.readyState === 'complete' &&
+            document.getElementById('nc-root') &&
+            typeof window.CMS !== 'undefined' &&
+            window.CMS.init) {
 
-                // Initialize CMS with parsed config
-                window.CMS.init(config);
-              } catch (parseError) {
-                console.error('Failed to parse CMS config:', parseError);
-                showError('Failed to parse CMS config: ' + parseError.message);
-              }
-            })
-            .catch(error => {
-              console.error('Failed to load CMS config:', error);
-              showError('Failed to load CMS config: ' + error.message);
-            });
+          try {
+            // Clear any existing content in the container
+            const container = document.getElementById('nc-root');
+            container.innerHTML = '';
+
+            // Initialize CMS with inline config
+            window.CMS.init(cmsConfig);
+          } catch (error) {
+            console.error('Failed to initialize CMS:', error);
+            showError('Failed to initialize CMS: ' + error.message);
+          }
         } else {
           // Retry after a short delay
           setTimeout(initializeCMS, 100);
@@ -79,23 +198,30 @@
       }
 
       function showError(message) {
-        document.body.innerHTML = `
-          <div class="min-h-screen flex items-center justify-center bg-gray-50">
-            <div class="text-center">
-              <div class="text-6xl mb-4">⚠️</div>
-              <h1 class="text-2xl font-bold text-gray-900 mb-2">Error Loading Admin Panel</h1>
-              <p class="text-gray-600 mb-4">Failed to initialize CMS. Please check console for details.</p>
-              <p class="text-sm text-gray-500 mb-4">Error: ${message}</p>
-              <button onclick="window.location.href='/admin/login/'" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg">
-                Back to Login
-              </button>
+        const container = document.getElementById('nc-root');
+        if (container) {
+          container.innerHTML = `
+            <div class="min-h-screen flex items-center justify-center bg-gray-50">
+              <div class="text-center">
+                <div class="text-6xl mb-4">⚠️</div>
+                <h1 class="text-2xl font-bold text-gray-900 mb-2">Error Loading Admin Panel</h1>
+                <p class="text-gray-600 mb-4">Failed to initialize CMS. Please check console for details.</p>
+                <p class="text-sm text-gray-500 mb-4">Error: ${message}</p>
+                <button onclick="window.location.href='/admin/login/'" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg">
+                  Back to Login
+                </button>
+              </div>
             </div>
-          </div>
-        `;
+          `;
+        }
       }
 
-      // Start initialization
-      initializeCMS();
+      // Start initialization when DOM is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeCMS);
+      } else {
+        initializeCMS();
+      }
 
       // Fallback timeout (in case CMS never loads)
       setTimeout(() => {
