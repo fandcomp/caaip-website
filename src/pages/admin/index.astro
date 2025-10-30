@@ -42,30 +42,148 @@
       return true;
     }
 
+    // CMS Configuration
+    const cmsConfig = {
+      backend: {
+        name: 'github',
+        repo: 'fandcomp/caaip-website',
+        branch: 'main',
+        base_url: 'https://caaip-website.vercel.app',
+        auth_endpoint: '/api/auth'
+      },
+      media_folder: 'public/images',
+      public_folder: '/images',
+      site_url: 'https://caaip-website.vercel.app',
+      display_url: 'https://caaip-website.vercel.app',
+      logo_url: '/images/logo-itb.png',
+      publish_mode: 'editorial_workflow',
+      collections: [
+        {
+          name: 'berita',
+          label: 'Berita',
+          folder: 'content/berita',
+          create: true,
+          slug: '{{year}}-{{month}}-{{day}}-{{slug}}',
+          preview_path: '{{locale}}/berita/{{slug}}',
+          fields: [
+            { label: 'Status', name: 'status', widget: 'select', options: ['draft', 'published'], default: 'draft' },
+            { label: 'Judul', name: 'title', widget: 'string' },
+            { label: 'Slug', name: 'slug', widget: 'string' },
+            { label: 'Tanggal', name: 'date', widget: 'datetime', format: 'YYYY-MM-DD', time_format: false },
+            { label: 'Penulis', name: 'author', widget: 'string', default: 'Redaksi' },
+            { label: 'Kategori', name: 'category', widget: 'select', options: ['Berita Internal', 'Berita Eksternal', 'Pengumuman', 'Lainnya'], default: 'Berita Internal' },
+            { label: 'Tag', name: 'tags', widget: 'list', default: [] },
+            { label: 'Cover', name: 'cover', widget: 'image', choose_url: false },
+            { label: 'Ringkasan', name: 'summary', widget: 'text' },
+            { label: 'Bahasa', name: 'locale', widget: 'select', options: ['id', 'en'], default: 'id' },
+            { label: 'Isi', name: 'body', widget: 'markdown' }
+          ]
+        },
+        {
+          name: 'agenda',
+          label: 'Agenda & Event',
+          folder: 'content/agenda',
+          create: true,
+          slug: '{{year}}-{{month}}-{{day}}-{{slug}}',
+          preview_path: '{{locale}}/agenda/{{slug}}',
+          fields: [
+            { label: 'Status', name: 'status', widget: 'select', options: ['draft', 'published'], default: 'draft' },
+            { label: 'Judul Event', name: 'title', widget: 'string' },
+            { label: 'Slug', name: 'slug', widget: 'string' },
+            { label: 'Tanggal Mulai', name: 'start_date', widget: 'datetime', format: 'YYYY-MM-DD', time_format: 'HH:mm' },
+            { label: 'Tanggal Selesai', name: 'end_date', widget: 'datetime', format: 'YYYY-MM-DD', time_format: 'HH:mm', required: false },
+            { label: 'Lokasi', name: 'location', widget: 'string' },
+            { label: 'Jenis Event', name: 'event_type', widget: 'select', options: ['Seminar', 'Workshop', 'Pelatihan', 'Konferensi', 'Lainnya'], default: 'Lainnya' },
+            { label: 'Poster/Gambar', name: 'poster', widget: 'image', required: false, choose_url: false },
+            { label: 'Ringkasan', name: 'summary', widget: 'text' },
+            { label: 'Bahasa', name: 'locale', widget: 'select', options: ['id', 'en'], default: 'id' },
+            { label: 'Detail Lengkap', name: 'body', widget: 'markdown' }
+          ]
+        },
+        {
+          name: 'kabar_duka',
+          label: 'Kabar Duka',
+          folder: 'content/kabar-duka',
+          create: true,
+          slug: '{{year}}-{{month}}-{{day}}-{{slug}}',
+          preview_path: '{{locale}}/kabar-duka/{{slug}}',
+          fields: [
+            { label: 'Status', name: 'status', widget: 'select', options: ['draft', 'published'], default: 'draft' },
+            { label: 'Judul Obituari', name: 'obituaryTitle', widget: 'string' },
+            { label: 'Slug', name: 'slug', widget: 'string' },
+            { label: 'Nama', name: 'name', widget: 'string' },
+            { label: 'Tanggal Wafat', name: 'dateOfDeath', widget: 'datetime', format: 'YYYY-MM-DD', time_format: false },
+            { label: 'Ringkasan', name: 'summary', widget: 'text' },
+            { label: 'Bahasa', name: 'locale', widget: 'select', options: ['id', 'en'], default: 'id' },
+            { label: 'Isi', name: 'body', widget: 'markdown' }
+          ]
+        },
+        {
+          name: 'alumni_orang',
+          label: 'Alumni - Orang',
+          folder: 'content/alumni/orang',
+          create: true,
+          slug: '{{cohort}}-{{slug}}',
+          preview_path: '{{locale}}/alumni/{{cohort}}',
+          fields: [
+            { label: 'Status', name: 'status', widget: 'select', options: ['draft', 'published'], default: 'published' },
+            { label: 'Nama', name: 'name', widget: 'string' },
+            { label: 'Slug', name: 'slug', widget: 'string' },
+            { label: 'Angkatan', name: 'cohort', widget: 'number', value_type: 'int', min: 1900, max: 2100 },
+            { label: 'Program', name: 'program', widget: 'string', required: false },
+            { label: 'Jabatan', name: 'jobTitle', widget: 'string', required: false },
+            { label: 'Organisasi', name: 'organization', widget: 'string', required: false },
+            { label: 'Email (opsional)', name: 'email', widget: 'string', required: false },
+            { label: 'Foto', name: 'avatar', widget: 'image', required: false, choose_url: false },
+            { label: 'Bahasa', name: 'locale', widget: 'select', options: ['id', 'en'], default: 'id' },
+            { label: 'Bio Singkat', name: 'body', widget: 'markdown', required: false }
+          ]
+        }
+      ]
+    };
+
     // Initialize CMS if authenticated
     if (checkAuth()) {
-      // Load Decap CMS configuration
-      fetch('/admin/config.yml')
-        .then(response => response.text())
-        .then(config => {
-          // Initialize CMS with config
-          window.CMS.init({ config });
-        })
-        .catch(error => {
-          console.error('Failed to load CMS config:', error);
-          document.body.innerHTML = `
-            <div class="min-h-screen flex items-center justify-center bg-gray-50">
-              <div class="text-center">
-                <div class="text-6xl mb-4">⚠️</div>
-                <h1 class="text-2xl font-bold text-gray-900 mb-2">Error Loading Admin Panel</h1>
-                <p class="text-gray-600 mb-4">Failed to load configuration. Please check console for details.</p>
-                <button onclick="window.location.href='/admin/login/'" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg">
-                  Back to Login
-                </button>
-              </div>
+      // Wait for CMS to be ready
+      function initializeCMS() {
+        if (typeof window.CMS !== 'undefined' && window.CMS.init) {
+          try {
+            window.CMS.init(cmsConfig);
+          } catch (error) {
+            console.error('Failed to initialize CMS:', error);
+            showError('Failed to initialize CMS: ' + error.message);
+          }
+        } else {
+          // Retry after a short delay
+          setTimeout(initializeCMS, 100);
+        }
+      }
+
+      function showError(message) {
+        document.body.innerHTML = `
+          <div class="min-h-screen flex items-center justify-center bg-gray-50">
+            <div class="text-center">
+              <div class="text-6xl mb-4">⚠️</div>
+              <h1 class="text-2xl font-bold text-gray-900 mb-2">Error Loading Admin Panel</h1>
+              <p class="text-gray-600 mb-4">Failed to initialize CMS. Please check console for details.</p>
+              <p class="text-sm text-gray-500 mb-4">Error: ${message}</p>
+              <button onclick="window.location.href='/admin/login/'" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg">
+                Back to Login
+              </button>
             </div>
-          `;
-        });
+          </div>
+        `;
+      }
+
+      // Start initialization
+      initializeCMS();
+
+      // Fallback timeout (in case CMS never loads)
+      setTimeout(() => {
+        if (typeof window.CMS === 'undefined' || !window.CMS.init) {
+          showError('CMS library failed to load within timeout period');
+        }
+      }, 10000); // 10 second timeout
     }
   </script>
 </body>
