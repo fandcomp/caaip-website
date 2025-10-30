@@ -4,11 +4,6 @@
   "installCommand": "npm install",
   "framework": "astro",
   "regions": ["sin1"],
-  "functions": {
-    "src/pages/api/**/*.js": {
-      "runtime": "@vercel/node"
-    }
-  },
   "rewrites": [
     {
       "source": "/api/auth",
