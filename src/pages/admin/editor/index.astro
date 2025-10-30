@@ -1,0 +1,306 @@
+---
+---
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Content Editor - CAAIP Admin</title>
+  <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+  <script src="https://unpkg.com/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { margin: 0; }
+    #nc-root { height: 100vh; width: 100vw; }
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.9);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3498db;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading Overlay -->
+  <div id="loading-overlay" class="loading-overlay">
+    <div class="text-center">
+      <div class="loading-spinner mx-auto mb-4"></div>
+      <h3 class="text-lg font-semibold text-gray-900 mb-2">Memuat Content Editor</h3>
+      <p class="text-gray-600">Mohon tunggu sebentar...</p>
+    </div>
+  </div>
+
+  <div id="nc-root"></div>
+
+  <script>
+    // Check authentication
+    function checkAuth() {
+      const isAuthenticated = localStorage.getItem('admin_authenticated') === 'true';
+      const loginTime = localStorage.getItem('admin_login_time');
+
+      if (!isAuthenticated || !loginTime) {
+        window.location.href = '/admin/login/';
+        return false;
+      }
+
+      // Check if login is still valid (24 hours)
+      const now = Date.now();
+      const loginTimestamp = parseInt(loginTime);
+      const hoursDiff = (now - loginTimestamp) / (1000 * 60 * 60);
+
+      if (hoursDiff > 24) {
+        // Login expired, clear storage and redirect
+        localStorage.removeItem('admin_authenticated');
+        localStorage.removeItem('admin_login_time');
+        localStorage.removeItem('github_token');
+        localStorage.removeItem('github_user');
+        window.location.href = '/admin/login/';
+        return false;
+      }
+
+      return true;
+    }
+
+    // Check if user has GitHub authentication
+    function checkGitHubAuth() {
+      const githubToken = localStorage.getItem('github_token');
+      if (!githubToken) {
+        // Redirect to GitHub OAuth setup
+        alert('Anda perlu mengautentikasi dengan GitHub untuk mengedit konten. Mengalihkan ke pengaturan...');
+        window.location.href = '/admin/github-setup/';
+        return false;
+      }
+      return true;
+    }
+
+    // CMS Configuration - inline config to avoid file loading issues
+    const cmsConfig = {
+      backend: {
+        name: 'github',
+        repo: 'fandcomp/caaip-website',
+        branch: 'main',
+        base_url: window.location.origin,
+        auth_endpoint: '/api/auth'
+      },
+      media_folder: 'public/images',
+      public_folder: '/images',
+      site_url: window.location.origin,
+      display_url: window.location.origin,
+      logo_url: '/images/logo-itb.png',
+      publish_mode: 'editorial_workflow',
+      load_config_file: false,
+      collections: [
+        {
+          name: 'berita',
+          label: 'Berita',
+          folder: 'content/berita',
+          create: true,
+          slug: '{{year}}-{{month}}-{{day}}-{{slug}}',
+          preview_path: '{{locale}}/berita/{{slug}}',
+          fields: [
+            { label: 'Status', name: 'status', widget: 'select', options: ['draft', 'published'], default: 'draft' },
+            { label: 'Judul', name: 'title', widget: 'string' },
+            { label: 'Slug', name: 'slug', widget: 'string' },
+            { label: 'Tanggal', name: 'date', widget: 'datetime', format: 'YYYY-MM-DD', time_format: false },
+            { label: 'Penulis', name: 'author', widget: 'string', default: 'Redaksi' },
+            { label: 'Kategori', name: 'category', widget: 'select', options: ['Berita Internal', 'Berita Eksternal', 'Pengumuman', 'Lainnya'], default: 'Berita Internal' },
+            { label: 'Tag', name: 'tags', widget: 'list', default: [] },
+            { label: 'Cover', name: 'cover', widget: 'image', choose_url: false },
+            { label: 'Ringkasan', name: 'summary', widget: 'text' },
+            { label: 'Bahasa', name: 'locale', widget: 'select', options: ['id', 'en'], default: 'id' },
+            { label: 'Isi', name: 'body', widget: 'markdown' }
+          ]
+        },
+        {
+          name: 'agenda',
+          label: 'Agenda',
+          folder: 'content/agenda',
+          create: true,
+          slug: '{{year}}-{{month}}-{{day}}-{{slug}}',
+          preview_path: '{{locale}}/agenda/{{slug}}',
+          fields: [
+            { label: 'Status', name: 'status', widget: 'select', options: ['draft', 'published'], default: 'draft' },
+            { label: 'Judul', name: 'title', widget: 'string' },
+            { label: 'Slug', name: 'slug', widget: 'string' },
+            { label: 'Tanggal Mulai', name: 'start_date', widget: 'datetime', format: 'YYYY-MM-DD', time_format: 'HH:mm' },
+            { label: 'Tanggal Selesai', name: 'end_date', widget: 'datetime', format: 'YYYY-MM-DD', time_format: 'HH:mm' },
+            { label: 'Lokasi', name: 'location', widget: 'string' },
+            { label: 'Penulis', name: 'author', widget: 'string', default: 'Redaksi' },
+            { label: 'Kategori', name: 'category', widget: 'select', options: ['Seminar', 'Workshop', 'Konferensi', 'Lainnya'], default: 'Seminar' },
+            { label: 'Tag', name: 'tags', widget: 'list', default: [] },
+            { label: 'Cover', name: 'cover', widget: 'image', choose_url: false },
+            { label: 'Ringkasan', name: 'summary', widget: 'text' },
+            { label: 'Bahasa', name: 'locale', widget: 'select', options: ['id', 'en'], default: 'id' },
+            { label: 'Deskripsi', name: 'body', widget: 'markdown' }
+          ]
+        },
+        {
+          name: 'kabar_duka',
+          label: 'Kabar Duka',
+          folder: 'content/kabar-duka',
+          create: true,
+          slug: '{{year}}-{{month}}-{{day}}-{{slug}}',
+          preview_path: '{{locale}}/kabar-duka/{{slug}}',
+          fields: [
+            { label: 'Status', name: 'status', widget: 'select', options: ['draft', 'published'], default: 'draft' },
+            { label: 'Nama', name: 'title', widget: 'string' },
+            { label: 'Slug', name: 'slug', widget: 'string' },
+            { label: 'Tanggal Wafat', name: 'date', widget: 'datetime', format: 'YYYY-MM-DD', time_format: false },
+            { label: 'Penulis', name: 'author', widget: 'string', default: 'Redaksi' },
+            { label: 'Tag', name: 'tags', widget: 'list', default: [] },
+            { label: 'Foto', name: 'cover', widget: 'image', choose_url: false },
+            { label: 'Ringkasan', name: 'summary', widget: 'text' },
+            { label: 'Bahasa', name: 'locale', widget: 'select', options: ['id', 'en'], default: 'id' },
+            { label: 'Biografi', name: 'body', widget: 'markdown' }
+          ]
+        },
+        {
+          name: 'alumni_orang',
+          label: 'Alumni',
+          folder: 'content/alumni',
+          create: true,
+          slug: '{{slug}}',
+          preview_path: '{{locale}}/alumni/{{slug}}',
+          fields: [
+            { label: 'Status', name: 'status', widget: 'select', options: ['draft', 'published'], default: 'draft' },
+            { label: 'Nama', name: 'title', widget: 'string' },
+            { label: 'Slug', name: 'slug', widget: 'string' },
+            { label: 'Angkatan', name: 'angkatan', widget: 'number' },
+            { label: 'Program Studi', name: 'program_studi', widget: 'string' },
+            { label: 'Email', name: 'email', widget: 'string' },
+            { label: 'LinkedIn', name: 'linkedin', widget: 'string' },
+            { label: 'Penulis', name: 'author', widget: 'string', default: 'Redaksi' },
+            { label: 'Tag', name: 'tags', widget: 'list', default: [] },
+            { label: 'Foto', name: 'cover', widget: 'image', choose_url: false },
+            { label: 'Ringkasan', name: 'summary', widget: 'text' },
+            { label: 'Bahasa', name: 'locale', widget: 'select', options: ['id', 'en'], default: 'id' },
+            { label: 'Biografi', name: 'body', widget: 'markdown' }
+          ]
+        },
+        {
+          name: 'pages',
+          label: 'Halaman',
+          folder: 'content/pages',
+          create: true,
+          slug: '{{slug}}',
+          preview_path: '{{locale}}/{{slug}}',
+          fields: [
+            { label: 'Status', name: 'status', widget: 'select', options: ['draft', 'published'], default: 'draft' },
+            { label: 'Judul', name: 'title', widget: 'string' },
+            { label: 'Slug', name: 'slug', widget: 'string' },
+            { label: 'Penulis', name: 'author', widget: 'string', default: 'Redaksi' },
+            { label: 'Tag', name: 'tags', widget: 'list', default: [] },
+            { label: 'Cover', name: 'cover', widget: 'image', choose_url: false },
+            { label: 'Ringkasan', name: 'summary', widget: 'text' },
+            { label: 'Bahasa', name: 'locale', widget: 'select', options: ['id', 'en'], default: 'id' },
+            { label: 'Isi', name: 'body', widget: 'markdown' }
+          ]
+        }
+      ]
+    };
+
+    // Initialize CMS if authenticated
+    if (checkAuth() && checkGitHubAuth()) {
+      // Wait for DOM to be ready and CMS to be loaded
+      function initializeCMS() {
+        // Check if DOM is ready and CMS container exists
+        if (document.readyState === 'complete' &&
+            document.getElementById('nc-root') &&
+            typeof window.CMS !== 'undefined' &&
+            window.CMS.init) {
+
+          try {
+            // Hide loading overlay
+            const loadingOverlay = document.getElementById('loading-overlay');
+            if (loadingOverlay) {
+              loadingOverlay.style.display = 'none';
+            }
+
+            // Clear any existing content in the container
+            const container = document.getElementById('nc-root');
+            container.innerHTML = '';
+
+            // Get GitHub token
+            const githubToken = localStorage.getItem('github_token');
+
+            // Update config with token
+            cmsConfig.backend.token = githubToken;
+
+            // Initialize CMS with inline config
+            window.CMS.init(cmsConfig);
+          } catch (error) {
+            console.error('Failed to initialize CMS:', error);
+            showError('Failed to initialize CMS: ' + error.message);
+          }
+        } else {
+          // Retry after a short delay
+          setTimeout(initializeCMS, 100);
+        }
+      }
+
+      function showError(message) {
+        const container = document.getElementById('nc-root');
+        if (container) {
+          container.innerHTML = `
+            <div class="min-h-screen flex items-center justify-center bg-gray-50">
+              <div class="text-center">
+                <div class="text-6xl mb-4">⚠️</div>
+                <h1 class="text-2xl font-bold text-gray-900 mb-2">Error Loading Content Editor</h1>
+                <p class="text-gray-600 mb-4">Failed to initialize CMS. Please check console for details.</p>
+                <p class="text-sm text-gray-500 mb-4">Error: ${message}</p>
+                <div class="space-x-4">
+                  <button onclick="window.location.href='/admin/dashboard/'" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg">
+                    Back to Dashboard
+                  </button>
+                  <button onclick="window.location.href='/admin/github-setup/'" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg">
+                    Setup GitHub Auth
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+
+        // Hide loading overlay
+        const loadingOverlay = document.getElementById('loading-overlay');
+        if (loadingOverlay) {
+          loadingOverlay.style.display = 'none';
+        }
+      }
+
+      // Start initialization when DOM is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeCMS);
+      } else {
+        initializeCMS();
+      }
+
+      // Fallback timeout (in case CMS never loads)
+      setTimeout(() => {
+        if (typeof window.CMS === 'undefined' || !window.CMS.init) {
+          showError('CMS library failed to load within timeout period');
+        }
+      }, 15000); // 15 second timeout
+    }
+  </script>
+</body>
+</html>

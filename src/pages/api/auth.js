@@ -37,19 +37,80 @@ export async function GET({ request, url }) {
     // Get user info
     const { data: user } = await octokit.users.getAuthenticated();
 
-    // Redirect back to admin panel with token
-    const redirectUrl = new URL('/admin/', url.origin);
-    redirectUrl.searchParams.set('access_token', token);
-    redirectUrl.searchParams.set('user', JSON.stringify({
-      name: user.name || user.login,
-      login: user.login,
-      avatar_url: user.avatar_url,
-    }));
+    // Redirect back to GitHub setup page with success
+    const redirectUrl = new URL('/admin/github-setup/', url.origin);
+    redirectUrl.searchParams.set('code', code);
+    redirectUrl.searchParams.set('state', state);
 
     return Response.redirect(redirectUrl.toString(), 302);
 
   } catch (error) {
     console.error('OAuth error:', error);
-    return new Response('Authentication failed', { status: 500 });
+    const errorUrl = new URL('/admin/github-setup/', url.origin);
+    errorUrl.searchParams.set('error', 'authentication_failed');
+    return Response.redirect(errorUrl.toString(), 302);
+  }
+}
+
+export async function POST({ request }) {
+  try {
+    const { code } = await request.json();
+
+    if (!code) {
+      return new Response(JSON.stringify({ error: 'No code provided' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // GitHub OAuth App credentials
+    const clientId = process.env.GITHUB_CLIENT_ID;
+    const clientSecret = process.env.GITHUB_CLIENT_SECRET;
+
+    if (!clientId || !clientSecret) {
+      console.error('Missing GitHub OAuth credentials');
+      return new Response(JSON.stringify({ error: 'Server configuration error' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // Exchange code for access token
+    const auth = createOAuthAppAuth({
+      clientId,
+      clientSecret,
+    });
+
+    const { token } = await auth({
+      type: 'oauth-user',
+      code,
+    });
+
+    // Create Octokit instance to verify token
+    const octokit = new Octokit({ auth: token });
+
+    // Get user info
+    const { data: user } = await octokit.users.getAuthenticated();
+
+    // Return token and user info
+    return new Response(JSON.stringify({
+      access_token: token,
+      user: {
+        name: user.name || user.login,
+        login: user.login,
+        avatar_url: user.avatar_url,
+        id: user.id
+      }
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+  } catch (error) {
+    console.error('OAuth POST error:', error);
+    return new Response(JSON.stringify({ error: 'Authentication failed' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 }
