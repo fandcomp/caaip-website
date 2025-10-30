@@ -19,10 +19,30 @@
   <div id="nc-root"></div>
 
   <script>
+    // Handle GitHub OAuth callback
+    function handleOAuthCallback() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const accessToken = urlParams.get('access_token');
+      const user = urlParams.get('user');
+
+      if (accessToken && user) {
+        // Store GitHub authentication
+        localStorage.setItem('github_token', accessToken);
+        localStorage.setItem('github_user', user);
+
+        // Clean up URL
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+      }
+    }
+
+    // Call this first to handle OAuth callback
+    handleOAuthCallback();
     // Check authentication
     function checkAuth() {
       const isAuthenticated = localStorage.getItem('admin_authenticated') === 'true';
       const loginTime = localStorage.getItem('admin_login_time');
+      const githubToken = localStorage.getItem('github_token');
 
       if (!isAuthenticated || !loginTime) {
         window.location.href = '/admin/login/';
@@ -38,7 +58,23 @@
         // Login expired, clear storage and redirect
         localStorage.removeItem('admin_authenticated');
         localStorage.removeItem('admin_login_time');
+        localStorage.removeItem('github_token');
+        localStorage.removeItem('github_user');
         window.location.href = '/admin/login/';
+        return false;
+      }
+
+      // For GitHub backend, we need both authentication and GitHub token
+      if (!githubToken) {
+        // Redirect to GitHub OAuth
+        const clientId = 'Ov23li2q8wQXh8q8wQXh';
+        const redirectUri = `${window.location.origin}/api/auth`;
+        const scope = 'repo';
+        const state = Math.random().toString(36).substring(7);
+
+        localStorage.setItem('oauth_state', state);
+        const githubUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}&state=${state}`;
+        window.location.href = githubUrl;
         return false;
       }
 
@@ -46,20 +82,23 @@
     }
 
     // CMS Configuration - inline config to avoid file loading issues
+    const githubToken = localStorage.getItem('github_token');
     const cmsConfig = {
       backend: {
         name: 'github',
         repo: 'fandcomp/caaip-website',
         branch: 'main',
-        base_url: 'https://caaip-website.vercel.app',
-        auth_endpoint: '/api/auth'
+        base_url: window.location.origin,
+        auth_endpoint: '/api/auth',
+        token: githubToken
       },
       media_folder: 'public/images',
       public_folder: '/images',
-      site_url: 'https://caaip-website.vercel.app',
-      display_url: 'https://caaip-website.vercel.app',
+      site_url: window.location.origin,
+      display_url: window.location.origin,
       logo_url: '/images/logo-itb.png',
       publish_mode: 'editorial_workflow',
+      load_config_file: false,
       collections: [
         {
           name: 'berita',
