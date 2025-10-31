@@ -9,11 +9,13 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/check": "^0.9.5",
     "@astrojs/tailwind": "^6.0.2",
     "@octokit/auth-oauth-app": "^9.0.2",
     "@octokit/rest": "^22.0.0",
     "astro": "^5.15.2",
     "fuse.js": "^7.1.0",
-    "gray-matter": "^4.0.3"
+    "gray-matter": "^4.0.3",
+    "typescript": "^5.9.3"
   }
 }

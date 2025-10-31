@@ -37,17 +37,16 @@ export async function GET({ request, url }) {
     // Get user info
     const { data: user } = await octokit.users.getAuthenticated();
 
-    // Redirect back to GitHub setup page with success
-    const redirectUrl = new URL('/admin/github-setup/', url.origin);
-    redirectUrl.searchParams.set('code', code);
-    redirectUrl.searchParams.set('state', state);
+    // Redirect back to admin dashboard with success
+    const redirectUrl = new URL('/admin/dashboard/', url.origin);
+    redirectUrl.searchParams.set('oauth_success', 'true');
 
     return Response.redirect(redirectUrl.toString(), 302);
 
   } catch (error) {
     console.error('OAuth error:', error);
-    const errorUrl = new URL('/admin/github-setup/', url.origin);
-    errorUrl.searchParams.set('error', 'authentication_failed');
+    const errorUrl = new URL('/admin/dashboard/', url.origin);
+    errorUrl.searchParams.set('oauth_error', 'authentication_failed');
     return Response.redirect(errorUrl.toString(), 302);
   }
 }

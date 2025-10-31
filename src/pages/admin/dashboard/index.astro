@@ -337,6 +337,33 @@
 
     // Initialize Lucide icons
     document.addEventListener('DOMContentLoaded', () => {
+      // Check for OAuth success/error messages
+      const urlParams = new URLSearchParams(window.location.search);
+      const oauthSuccess = urlParams.get('oauth_success');
+      const oauthError = urlParams.get('oauth_error');
+
+      if (oauthSuccess) {
+        // Clean up URL
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+
+        // Show success message
+        setTimeout(() => {
+          alert('✅ GitHub authentication berhasil! Anda sekarang dapat mengedit konten.');
+        }, 500);
+      }
+
+      if (oauthError) {
+        // Clean up URL
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+
+        // Show error message
+        setTimeout(() => {
+          alert('❌ GitHub authentication gagal. Silakan coba lagi atau hubungi administrator.');
+        }, 500);
+      }
+
       lucide.createIcons();
     });
   </script>
